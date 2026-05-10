@@ -20,7 +20,7 @@ Pin assignments are in `include/config.h`.
 ### Setup
 
 1. Install [PlatformIO](https://platformio.org/).
-2. Edit `include/config.h` — fill in your WiFi SSID/password and adjust GPIO pins if needed.
+2. Copy `include/config.h.example` to `include/config.h` and fill in your WiFi SSID/password. `include/config.h` is gitignored so credentials won't be committed.
 3. Build and upload:
 
 ```bash

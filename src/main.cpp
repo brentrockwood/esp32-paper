@@ -59,6 +59,7 @@ void onBitmapUpload() {
         uploadGood  = false;
 
     } else if (up.status == UPLOAD_FILE_WRITE) {
+        if (up.name != "bitmap") return;
         // Copy this chunk, but never write past the end of the buffer.
         size_t space  = EPD_BITMAP_BYTES - uploadBytes;
         size_t toCopy = min((size_t)up.currentSize, space);
@@ -66,6 +67,7 @@ void onBitmapUpload() {
         uploadBytes += toCopy;
 
     } else if (up.status == UPLOAD_FILE_END) {
+        if (up.name != "bitmap") return;
         uploadGood = (uploadBytes == EPD_BITMAP_BYTES);
     }
 }
@@ -126,9 +128,16 @@ void setup() {
 
     Serial.print("Connecting to WiFi");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print('.');
+    {
+        unsigned long start = millis();
+        while (WiFi.status() != WL_CONNECTED) {
+            if (millis() - start >= 20000UL) {
+                Serial.println("\nWiFi timeout — restarting");
+                ESP.restart();
+            }
+            delay(500);
+            Serial.print('.');
+        }
     }
     Serial.println("\nIP: " + WiFi.localIP().toString());
 

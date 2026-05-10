@@ -23,7 +23,8 @@ upload:
 	pio run -e $(ENV) --target upload --upload-port $(PORT)
 
 monitor:
-	pio device monitor
+	@[ -n "$(PORT)" ] || { echo "Error: no serial port found; set PORT=/dev/cu.xxx"; exit 1; }
+	pio device monitor --port $(PORT)
 
 clean:
 	pio run --target clean
