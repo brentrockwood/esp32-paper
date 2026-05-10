@@ -116,7 +116,7 @@ void handleRoot() {
 // ── setup ─────────────────────────────────────────────────────────────────────
 void setup() {
     Serial.begin(115200);
-    Serial.println("https://github.com/brentrockwood/esp32-paper @ " GIT_HASH);
+    Serial.println(REPO_URL " @ " GIT_HASH);
 
     // init(baud, initial_reset, reset_ms, pulldown_rst_mode)
     display.init(115200, true, 2, false);
