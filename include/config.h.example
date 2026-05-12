@@ -1,5 +1,5 @@
-// config.h — WiFi credentials and hardware pin assignments.
-// Keep this file out of version control if your repo is public.
+// config.h.example — Copy to include/config.h and fill in your credentials.
+// include/config.h is gitignored so your secrets stay out of version control.
 
 #pragma once
 

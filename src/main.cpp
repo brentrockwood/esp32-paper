@@ -1,10 +1,10 @@
-// paper.ino — ESP32 WiFi e-paper display server
+// main.cpp — ESP32 WiFi e-paper display server
 //
 // Hosts a tiny HTTP server. Send a raw 1bpp bitmap via multipart POST and it
 // appears on a 2.13" e-paper display (LAFVIN / Waveshare, SSD1680 driver).
 //
-// Required library (Arduino Library Manager):
-//   GxEPD2 by Jean-Marc Zingg
+// Required library (platformio.ini lib_deps):
+//   ZinggJM/GxEPD2
 //
 // ── HTTP API ──────────────────────────────────────────────────────────────────
 //   POST /display   multipart/form-data, field name "bitmap"
@@ -17,6 +17,7 @@
 //   GET  /clear     Fill display white.
 //   GET  /          Status page with IP and curl example.
 
+#include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <SPI.h>
@@ -25,9 +26,9 @@
 #include "config.h"
 
 // ── Display dimensions ────────────────────────────────────────────────────────
-static constexpr int EPD_WIDTH       = 250;
-static constexpr int EPD_HEIGHT      = 122;
-static constexpr int EPD_ROW_BYTES   = (EPD_WIDTH + 7) / 8; // 32 bytes, 6 padding bits
+static constexpr int EPD_WIDTH        = 250;
+static constexpr int EPD_HEIGHT       = 122;
+static constexpr int EPD_ROW_BYTES    = (EPD_WIDTH + 7) / 8; // 32 bytes, 6 padding bits
 static constexpr int EPD_BITMAP_BYTES = EPD_ROW_BYTES * EPD_HEIGHT; // 3904 bytes total
 
 // ── Display driver ────────────────────────────────────────────────────────────
@@ -58,6 +59,7 @@ void onBitmapUpload() {
         uploadGood  = false;
 
     } else if (up.status == UPLOAD_FILE_WRITE) {
+        if (up.name != "bitmap") return;
         // Copy this chunk, but never write past the end of the buffer.
         size_t space  = EPD_BITMAP_BYTES - uploadBytes;
         size_t toCopy = min((size_t)up.currentSize, space);
@@ -65,6 +67,7 @@ void onBitmapUpload() {
         uploadBytes += toCopy;
 
     } else if (up.status == UPLOAD_FILE_END) {
+        if (up.name != "bitmap") return;
         uploadGood = (uploadBytes == EPD_BITMAP_BYTES);
     }
 }
@@ -113,6 +116,7 @@ void handleRoot() {
 // ── setup ─────────────────────────────────────────────────────────────────────
 void setup() {
     Serial.begin(115200);
+    Serial.println(REPO_URL " @ " GIT_HASH);
 
     // init(baud, initial_reset, reset_ms, pulldown_rst_mode)
     display.init(115200, true, 2, false);
@@ -125,9 +129,16 @@ void setup() {
 
     Serial.print("Connecting to WiFi");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print('.');
+    {
+        unsigned long start = millis();
+        while (WiFi.status() != WL_CONNECTED) {
+            if (millis() - start >= 20000UL) {
+                Serial.println("\nWiFi timeout — restarting");
+                ESP.restart();
+            }
+            delay(500);
+            Serial.print('.');
+        }
     }
     Serial.println("\nIP: " + WiFi.localIP().toString());
 
