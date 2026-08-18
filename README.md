@@ -72,6 +72,16 @@ curl -F bitmap=@image.bin http://<esp32-ip>/display
 
 Requires Pillow: `pip install Pillow`.
 
+### Rendering text
+
+`scripts/text_to_epaper.py` renders an argument or standard input directly to the raw bitmap.
+
+```bash
+python3 scripts/text_to_epaper.py 'Hello, e-paper' > message.bin
+printf 'Hello\nworld' | python3 scripts/text_to_epaper.py > message.bin
+curl -F bitmap=@message.bin http://<esp32-ip>/display
+```
+
 ### Troubleshooting
 
 **Busy Timeout in serial log** — the display enters deep sleep after each refresh and requires a hardware RST pulse to wake. The firmware re-initialises the display before every update to handle this; if you're still seeing timeouts, check that the RST wire (GPIO 16) has continuity.

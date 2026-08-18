@@ -85,7 +85,7 @@ void handleDisplay() {
     // Some SSD1680 variants finish their refresh during _PowerOff and then
     // enter deep sleep; _PowerOn alone can't wake them — only RST can.
     display.init(0, true, 2, false);
-    display.setRotation(3);
+    display.setRotation(1);
 
     // Full-window refresh: clear to white, then paint 1-bits black.
     // Rotation 1 = landscape (250 wide × 122 tall).
@@ -102,7 +102,7 @@ void handleDisplay() {
 // ── GET /clear ────────────────────────────────────────────────────────────────
 void handleClear() {
     display.init(0, true, 2, false);
-    display.setRotation(3);
+    display.setRotation(1);
     display.setFullWindow();
     display.firstPage();
     do { display.fillScreen(GxEPD_WHITE); } while (display.nextPage());
@@ -130,7 +130,7 @@ void setup() {
     // 2 MHz SPI — halved from the 4 MHz default for better signal integrity
     // over breadboard/jumper wires. Increase back to 4000000 once wiring is solid.
     display.epd2.selectSPI(SPI, SPISettings(2000000, MSBFIRST, SPI_MODE0));
-    display.setRotation(3); // 1 = landscape; try 3 if image is upside-down
+    display.setRotation(1); // 1 = landscape; try 3 if image is upside-down
 
     // Clear to a known white state on boot.
     display.setFullWindow();
