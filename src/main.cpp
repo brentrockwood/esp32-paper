@@ -32,9 +32,9 @@ static constexpr int EPD_ROW_BYTES    = (EPD_WIDTH + 7) / 8; // 32 bytes, 6 padd
 static constexpr int EPD_BITMAP_BYTES = EPD_ROW_BYTES * EPD_HEIGHT; // 3904 bytes total
 
 // ── Display driver ────────────────────────────────────────────────────────────
-// GxEPD2_213_B73 targets the GDEH0213B73 panel (SSD1680, 250×122).
-// If your display doesn't init correctly, try GxEPD2_213_B74 instead.
-using EpdClass = GxEPD2_213_B73;
+// GxEPD2_213_B74 targets the GDEH0213B74 panel (SSD1680, 250×122).
+// If this doesn't work either, try GxEPD2_213_BN (Waveshare V2).
+using EpdClass = GxEPD2_213_B74;
 GxEPD2_BW<EpdClass, EpdClass::HEIGHT> display(
     EpdClass(PIN_EPD_CS, PIN_EPD_DC, PIN_EPD_RST, PIN_EPD_BUSY));
 
@@ -81,9 +81,14 @@ void handleDisplay() {
         return;
     }
 
+    // Wake the panel from deep sleep via hardware RST before every update.
+    // Some SSD1680 variants finish their refresh during _PowerOff and then
+    // enter deep sleep; _PowerOn alone can't wake them — only RST can.
+    display.init(0, true, 2, false);
+    display.setRotation(1);
+
     // Full-window refresh: clear to white, then paint 1-bits black.
     // Rotation 1 = landscape (250 wide × 122 tall).
-    // Change display.setRotation() in setup() if content appears rotated.
     display.setFullWindow();
     display.firstPage();
     do {
@@ -96,6 +101,8 @@ void handleDisplay() {
 
 // ── GET /clear ────────────────────────────────────────────────────────────────
 void handleClear() {
+    display.init(0, true, 2, false);
+    display.setRotation(1);
     display.setFullWindow();
     display.firstPage();
     do { display.fillScreen(GxEPD_WHITE); } while (display.nextPage());
@@ -120,6 +127,9 @@ void setup() {
 
     // init(baud, initial_reset, reset_ms, pulldown_rst_mode)
     display.init(115200, true, 2, false);
+    // 2 MHz SPI — halved from the 4 MHz default for better signal integrity
+    // over breadboard/jumper wires. Increase back to 4000000 once wiring is solid.
+    display.epd2.selectSPI(SPI, SPISettings(2000000, MSBFIRST, SPI_MODE0));
     display.setRotation(1); // 1 = landscape; try 3 if image is upside-down
 
     // Clear to a known white state on boot.
