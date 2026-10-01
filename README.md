@@ -6,16 +6,16 @@ Inspired by [TRMNL](https://trmnl.com/) — the device is intentionally dumb (bi
 
 ### Hardware
 
-| Display pin | Function | ESP32 GPIO |
-|---|---|---|
-| DIN | MOSI | 23 (VSPI, fixed) |
-| CLK | SCK | 18 (VSPI, fixed) |
-| CS | Chip select | 5 |
-| DC | Data/Command | 17 |
-| RST | Reset | 16 |
-| BUSY | Busy signal | 4 |
-| VCC | Power | 3.3V |
-| GND | Ground | GND |
+| Display pin | Function | ESP32 GPIO | Color | Ordinal (Note) |
+|---|---|---|---|---|
+| VCC | Power | 3.3V | Black | 0 |
+| GND | Ground | GND | Red | 1 |
+| BUSY | Busy signal | 4 | Purple | 4 (skip 2)
+| RST | Reset | 16 | Blue | 5 |
+| DC | Data/Command | 17 | Green | 6 |
+| CS | Chip select | 5 | Orange | 7 |
+| CLK | SCK | 18 (VSPI, fixed) | Yellow | 8 |
+| DIN | MOSI | 23 (VSPI, fixed) | White | 14 (last) |
 
 Pin assignments are in `include/config.h`.
 
